@@ -9,18 +9,14 @@ var index = createIndex(G)
 var data = {
   edges: graph.edges,
   tiles: graph.tiles,
-  place2Vert: graph.point2Id,
+  place2Vert: graph.id2Point,
   place2Tiles: graph.id2Tiles,
-  vert2Place: graph.id2Point,
+  vert2Place: graph.point2Id,
   labels: {
-    in: {
-      v: index.inVerts,
-      w: index.inWeights
-    },
-    out: {
-      v: index.outVerts,
-      w: index.outWeights
-    }
+    inV: index.inLabels,
+    inW: index.inWeights,
+    outV: index.outLabels,
+    outW: index.outWeights
   }
 }
 

@@ -7,7 +7,7 @@ var ndsort = require('ndarray-sort')
 // var assert = require('assert')
 
 // reciprocal of precision = tolerance radius
-var PRECISION = 2048
+var PRECISION = 1024
 
 // FIXME: use geodesic distance
 function edgeWeight (px, py, qx, qy) {

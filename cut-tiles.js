@@ -7,6 +7,9 @@ var search = require('./index.json')
 var tilePlaces = new Array(search.tiles.length)
 var tileEdges = new Array(search.tiles.length)
 
+function noop () {
+}
+
 search.tiles.forEach(function (name, id) {
   var file = name.replace('tiles', 'search').replace('.pbf', '')
   mkdirp(path.dirname(file), function (err) {
@@ -197,14 +200,14 @@ function encode (prefix, data) {
     external: data.external
   }
 
-  fs.writeFile(prefix + '.json', JSON.stringify(header))
-  fs.writeFile(prefix + '.places', places)
-  fs.writeFile(prefix + '.s.bin', es)
-  fs.writeFile(prefix + '.t.bin', et)
-  fs.writeFile(prefix + '.w.bin', ew)
+  fs.writeFile(prefix + '.json', JSON.stringify(header), noop)
+  fs.writeFile(prefix + '.places', places, noop)
+  fs.writeFile(prefix + '.s.bin', es, noop)
+  fs.writeFile(prefix + '.t.bin', et, noop)
+  fs.writeFile(prefix + '.w.bin', ew, noop)
 
-  flattenSearch(prefix + '.in', data.search.in)
-  flattenSearch(prefix + '.out', data.search.out)
+  flattenSearch(prefix + '.in', data.search.in, noop)
+  flattenSearch(prefix + '.out', data.search.out, noop)
 
   function flattenSearch (prefix, search) {
     var v = search.v
@@ -231,8 +234,8 @@ function encode (prefix, data) {
       }
     }
 
-    fs.writeFile(prefix + '.v.bin', vflat)
-    fs.writeFile(prefix + '.w.bin', wflat)
-    fs.writeFile(prefix + '.offsets.bin', offsets)
+    fs.writeFile(prefix + '.v.bin', vflat, noop)
+    fs.writeFile(prefix + '.w.bin', wflat, noop)
+    fs.writeFile(prefix + '.offsets.bin', offsets, noop)
   }
 }
