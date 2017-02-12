@@ -8,7 +8,7 @@ var tilePlaces = new Array(search.tiles.length)
 var tileEdges = new Array(search.tiles.length)
 
 search.tiles.forEach(function (name, id) {
-  var file = name.replace('tiles', 'search').replace('pbf', 'json')
+  var file = name.replace('tiles', 'search').replace('.pbf', '')
   mkdirp(path.dirname(file), function (err) {
     if (err) {
       return console.error(err)
@@ -17,7 +17,7 @@ search.tiles.forEach(function (name, id) {
       tilePlaces[id],
       tileEdges[id],
       search)
-    fs.writeFile(file, encode(data))
+    encode(file, data)
   })
 
   tilePlaces[id] = []
@@ -185,8 +185,6 @@ function encode (prefix, data) {
   var es = new Int32Array(data.edges.s)
   var et = new Int32Array(data.edges.t)
   var ew = new Float32Array(data.edges.w)
-  flattenSearch(prefix + '.in', data.search.in)
-  flattenSearch(prefix + '.out', data.search.out)
 
   var numPlaces = places.length
   var numEdges = et.length
@@ -200,9 +198,13 @@ function encode (prefix, data) {
   }
 
   fs.writeFile(prefix + '.json', JSON.stringify(header))
+  fs.writeFile(prefix + '.places', places)
   fs.writeFile(prefix + '.s.bin', es)
   fs.writeFile(prefix + '.t.bin', et)
   fs.writeFile(prefix + '.w.bin', ew)
+
+  flattenSearch(prefix + '.in', data.search.in)
+  flattenSearch(prefix + '.out', data.search.out)
 
   function flattenSearch (prefix, search) {
     var v = search.v
@@ -231,6 +233,6 @@ function encode (prefix, data) {
 
     fs.writeFile(prefix + '.v.bin', vflat)
     fs.writeFile(prefix + '.w.bin', wflat)
-    fs.writeFile(prefix + '.offset.bin', offsets)
+    fs.writeFile(prefix + '.offsets.bin', offsets)
   }
 }
