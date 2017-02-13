@@ -1,15 +1,41 @@
 var connectToDB = require('./client/content-store')
+var merge = require('./client/merge')
 
-function merge (a, b) {
+function placeString (place) {
+  var str = place.toString(16)
+  while (str.length < 16) {
+    str = '0' + str
+  }
+  return str
 }
 
 module.exports = function (infoHash, cb) {
-  connectToDB(infoHash, function (err, getPlace) {
+  connectToDB(infoHash, function (err, getFile) {
     if (err) {
       return cb(err)
     }
 
-    function fetchPlaces (places, cb) {
+    function getPlace (place, cb) {
+      var str = placeString(place)
+      var path = [
+        'hub',
+        str.slice(0, 2),
+        str.slice(2, 4),
+        str.slice(4, 6),
+        str.slice(6, 8),
+        str.slice(8, 10),
+        str.slice(10, 12)
+      ].join('/') + '.json'
+
+      getFile(path, function (err, data) {
+        if (err) {
+          return cb(err)
+        }
+        cb(null, data[str.slice(12)])
+      })
+    }
+
+    function getPlaceList (places, cb) {
       var failed = false
       var count = places.length
       var result = new Array(places.length)
@@ -31,11 +57,16 @@ module.exports = function (infoHash, cb) {
     }
 
     function getDistance (start, dest, cb) {
-      fetchPlaces([start, dest], function (err, result) {
+      getPlaceList([start, dest], function (err, result) {
         if (err) {
           return cb(err)
         }
-        return merge(result[0].lo, result[1].li).distance
+        var d = merge(result[0].lo, result[1].li)
+        if (d) {
+          return d.distance
+        } else {
+          return Infinity
+        }
       })
     }
 
