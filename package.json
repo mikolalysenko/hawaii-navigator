@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ipfs": "^0.21.8",
+    "js-ipfs": "0.0.301",
     "mkdirp": "^0.5.1",
     "ndarray": "^1.0.18",
     "ndarray-sort": "^1.0.1",
