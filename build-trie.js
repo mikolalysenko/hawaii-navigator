@@ -11,8 +11,8 @@ index.vert2Place.forEach(insertPlace)
 
 function insertPlace (place) {
   var str = placeToks(place)
-  var prefix = str.slice(0, 14)
-  var suffix = str.slice(14)
+  var prefix = str.slice(0, 12)
+  var suffix = str.slice(12)
   var vert = index.place2Vert[place]
 
   var node = trie[prefix]
@@ -44,13 +44,12 @@ Object.keys(trie).forEach(function (prefix) {
     prefix.slice(2, 4),
     prefix.slice(4, 6),
     prefix.slice(6, 8),
-    prefix.slice(8, 10),
-    prefix.slice(10, 12))
+    prefix.slice(8, 10))
   mkdirp(dir, function (err) {
     if (err) {
       return
     }
-    var file = path.join(dir, prefix.slice(12, 14) + '.json')
+    var file = path.join(dir, prefix.slice(10, 12) + '.json')
     fs.writeFile(file, JSON.stringify(node), noop)
   })
 })
