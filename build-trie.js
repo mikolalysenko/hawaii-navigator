@@ -4,8 +4,9 @@ var fs = require('fs')
 
 var index = require('./index.json')
 
-var trie = {}
+var adjacency = buildAdjacency(index.vert2Place.length, index.edges)
 
+var trie = {}
 index.vert2Place.forEach(insertPlace)
 
 function insertPlace (place) {
@@ -20,8 +21,10 @@ function insertPlace (place) {
   }
 
   node[suffix] = {
-    in: renameLabels(index.labels.inV[vert], index.labels.inW[vert]),
-    out: renameLabels(index.labels.outV[vert], index.labels.outW[vert])
+    li: renameLabels(index.labels.inV[vert], index.labels.inW[vert]),
+    lo: renameLabels(index.labels.outV[vert], index.labels.outW[vert]),
+    ai: renameLabels(adjacency.inV[vert], adjacency.inW[vert]),
+    ao: renameLabels(adjacency.outV[vert], adjacency.outW[vert])
   }
 }
 
@@ -79,5 +82,37 @@ function compareV (a, b) {
 }
 
 function takeW (p) {
-  return p.w
+  return Math.floor(p.w * 1000) / 1000
+}
+
+function buildAdjacency (numVerts, edges) {
+  var inV = fillArray(numVerts)
+  var inW = fillArray(numVerts)
+  var outV = fillArray(numVerts)
+  var outW = fillArray(numVerts)
+
+  for (var i = 0; i < edges.length; ++i) {
+    var e = edges[i]
+    var s = e[0]
+    var t = e[1]
+    var w = e[2]
+    outV[s].push(t)
+    outW[s].push(w)
+    inV[t].push(s)
+    inW[t].push(w)
+  }
+  return {
+    inV: inV,
+    inW: inW,
+    outV: outV,
+    outW: outW
+  }
+}
+
+function fillArray (n) {
+  var arr = new Array(n)
+  for (var i = 0; i < n; ++i) {
+    arr[i] = []
+  }
+  return arr
 }

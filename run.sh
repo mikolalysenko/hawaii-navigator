@@ -17,4 +17,4 @@ node build-graph.js > graph.json;
 node build-index.js > index.json;
 
 # cut into tiles
-node cut-tiles.js;
+node build-trie.js;
