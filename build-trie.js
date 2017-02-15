@@ -61,7 +61,7 @@ function renameLabels (verts, weights) {
   var pairs = new Array(verts.length)
   for (var i = 0; i < pairs.length; ++i) {
     pairs[i] = {
-      v: index.vert2Place[i],
+      v: index.vert2Place[verts[i]],
       w: weights[i]
     }
   }
@@ -101,6 +101,7 @@ function buildAdjacency (numVerts, edges) {
     inV[t].push(s)
     inW[t].push(w)
   }
+
   return {
     inV: inV,
     inW: inW,

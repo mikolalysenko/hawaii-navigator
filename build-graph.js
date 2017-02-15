@@ -139,10 +139,12 @@ fs.readFile('./tiles.txt', function (err, data) {
       while (i < baseEdges.length) {
         var a = baseEdges[i]
         var b = baseEdges[i + 1]
-        edges.push([a, b,
-          edgeWeight(
-            points[2 * a], points[2 * a + 1],
-            points[2 * b], points[2 * b + 1])])
+        if (a !== b) {
+          edges.push([a, b,
+            edgeWeight(
+              points[2 * a], points[2 * a + 1],
+              points[2 * b], points[2 * b + 1])])
+        }
         while (
           i < baseEdges.length &&
           baseEdges[i] === a &&

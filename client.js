@@ -78,49 +78,60 @@ function merge (a, b) {
         bacc += bv[bptr]
       }
 
-      if (aptr >= av.length && bptr >= bv.length) {
+      if (aptr >= av.length || bptr >= bv.length) {
         break
       }
-    }
-
-    while (aacc <= bacc) {
-      if (aacc === bacc) {
-        w = aw[aptr] + bw[bptr]
-        if (w < hitW) {
-          hitV = aacc
-          hitW = w
-        }
-      }
-      aptr += 1
-      if (aptr >= av.length) {
-        break
-      }
-      aacc += av[aptr]
-    }
-
-    while (bacc <= aacc) {
-      if (aacc === bacc) {
-        w = aw[aptr] + bw[bptr]
-        if (w < hitW) {
-          hitV = aacc
-          hitW = w
-        }
-      }
-      aptr += 1
-      if (aptr >= av.length) {
-        break
-      }
-      aacc += av[aptr]
-    }
-
-    if (hitV < 0) {
-      return null
-    }
-    return {
-      vertex: hitV,
-      distance: hitW
     }
   }
+
+  while (aacc <= bacc && aptr < av.length) {
+    if (aacc === bacc) {
+      w = aw[aptr] + bw[bptr]
+      if (w < hitW) {
+        hitV = aacc
+        hitW = w
+      }
+    }
+    aptr += 1
+    if (aptr >= av.length) {
+      break
+    }
+    aacc += av[aptr]
+  }
+
+  while (bacc <= aacc && bptr < bv.length) {
+    if (aacc === bacc) {
+      w = aw[aptr] + bw[bptr]
+      if (w < hitW) {
+        hitV = bacc
+        hitW = w
+      }
+    }
+    bptr += 1
+    if (bptr >= bv.length) {
+      break
+    }
+    bacc += bv[bptr]
+  }
+
+  if (hitV < 0) {
+    return null
+  }
+  return {
+    vertex: hitV,
+    distance: hitW
+  }
+}
+
+function containsVert (dv, v) {
+  var acc = 0
+  for (var i = 0; i < dv.length; ++i) {
+    acc += dv[i]
+    if (acc === v) {
+      return true
+    }
+  }
+  return false
 }
 
 module.exports = function (getFile) {
@@ -193,6 +204,7 @@ module.exports = function (getFile) {
     function refineRoute (start, end) {
       pending += 1
       getPlaceList([start, end], function (err, result) {
+        console.log('find route: ', start, end, result)
         if (done) {
           return
         }
@@ -208,7 +220,7 @@ module.exports = function (getFile) {
         }
 
         if (hub.vertex === start) {
-          if (result[0].ao.v.indexOf(end) >= 0) {
+          if (containsVert(result[0].ao.v, end)) {
             edges.push([
               new Vertex(start, result[0]),
               new Vertex(end, result[1])
@@ -217,7 +229,7 @@ module.exports = function (getFile) {
             scanAdjacent(start, result[0].ao, end, { v: [end], w: [0] })
           }
         } else if (hub.vertex === end) {
-          if (result[1].ai.v.indexOf(start) >= 0) {
+          if (containsVert(result[1].ai.v, start)) {
             edges.push([
               new Vertex(start, result[0]),
               new Vertex(end, result[1])
