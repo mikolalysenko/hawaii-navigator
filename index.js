@@ -1,5 +1,3 @@
-var merge = require('./client/merge')
-
 function placeString (place) {
   var str = place.toString(16)
   while (str.length < 16) {
@@ -30,6 +28,99 @@ function extractPath (start, edges) {
   }
   path.push(next[1])
   return path
+}
+
+function merge (a, b) {
+  var av = a.v
+  var aw = a.w
+  var bv = b.v
+  var bw = b.w
+
+  if (av.length <= 0 || bv.length <= 0) {
+    return null
+  }
+
+  var aptr = 0
+  var aacc = av[0]
+  var bptr = 0
+  var bacc = bv[0]
+
+  var w
+  var hitV = -1
+  var hitW = Infinity
+
+  while (true) {
+    if (aacc < bacc) {
+      aptr += 1
+      if (aptr >= av.length) {
+        break
+      }
+      aacc += av[aptr]
+    } else if (aacc > bacc) {
+      bptr += 1
+      if (bptr >= bv.length) {
+        break
+      }
+      bacc += bv[bptr]
+    } else {
+      w = aw[aptr] + bw[bptr]
+      if (w < hitW) {
+        hitV = aacc
+        hitW = w
+      }
+
+      aptr += 1
+      if (aptr < av.length) {
+        aacc += av[aptr]
+      }
+      bptr += 1
+      if (bptr < bv.length) {
+        bacc += bv[bptr]
+      }
+
+      if (aptr >= av.length && bptr >= bv.length) {
+        break
+      }
+    }
+
+    while (aacc <= bacc) {
+      if (aacc === bacc) {
+        w = aw[aptr] + bw[bptr]
+        if (w < hitW) {
+          hitV = aacc
+          hitW = w
+        }
+      }
+      aptr += 1
+      if (aptr >= av.length) {
+        break
+      }
+      aacc += av[aptr]
+    }
+
+    while (bacc <= aacc) {
+      if (aacc === bacc) {
+        w = aw[aptr] + bw[bptr]
+        if (w < hitW) {
+          hitV = aacc
+          hitW = w
+        }
+      }
+      aptr += 1
+      if (aptr >= av.length) {
+        break
+      }
+      aacc += av[aptr]
+    }
+
+    if (hitV < 0) {
+      return null
+    }
+    return {
+      vertex: hitV,
+      distance: hitW
+    }
+  }
 }
 
 module.exports = function (getFile) {
@@ -85,9 +176,9 @@ module.exports = function (getFile) {
       }
       var d = merge(result[0].lo, result[1].li)
       if (d) {
-        return d.distance
+        return cb(null, d.distance)
       } else {
-        return Infinity
+        return cb(null, Infinity)
       }
     })
   }
@@ -149,7 +240,20 @@ module.exports = function (getFile) {
 
     function scanAdjacent (start, outAdj, end, inAdj) {
       pending += 1
-      getPlaceList(outAdj.v.concat(inAdj.v), function (err, data) {
+
+      var adj = []
+      var acc = 0
+      for (var i = 0; i < outAdj.v.length; ++i) {
+        acc += outAdj.v[i]
+        adj.push(acc)
+      }
+      acc = 0
+      for (var j = 0; j < inAdj.v.length; ++j) {
+        acc += inAdj.v[j]
+        adj.push(acc)
+      }
+
+      getPlaceList(adj, function (err, data) {
         if (done) {
           return
         }
