@@ -33,6 +33,7 @@ fs.readFile('./tiles.txt', function (err, data) {
 
   var nodes = []
   var ways = []
+  var placeCoords = {}
 
   tiles.forEach(function (fileName, tileId) {
     return (
@@ -50,6 +51,7 @@ fs.readFile('./tiles.txt', function (err, data) {
               Math.floor(item.lon * PRECISION),
               +item.id,
               +tileId)
+            placeCoords[+item.id] = [item.lat, item.lon]
             break
           case 'way':
             if (item.tags && item.tags.highway) {
@@ -77,7 +79,8 @@ fs.readFile('./tiles.txt', function (err, data) {
       point2Id: indexData.point2Id,
       id2Point: indexData.id2Point,
       id2Tiles: indexData.id2Tiles,
-      tiles: tiles
+      tiles: tiles,
+      placeCoords: placeCoords
     })
 
     function fuseNodes (nodes) {

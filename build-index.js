@@ -17,7 +17,8 @@ var data = {
     inW: index.inWeights,
     outV: index.outLabels,
     outW: index.outWeights
-  }
+  },
+  place2Coord: graph.placeCoords
 }
 
 console.log(JSON.stringify(data))

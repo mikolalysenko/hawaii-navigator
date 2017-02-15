@@ -1,7 +1,6 @@
-var GATEWAY_URL = 'https://gateway.ipfs.io/ipns/'
 var CACHE = {}
 
-// FIXME:
+// FIXME:  This is just a temporary stub
 //
 //  * race condition where fetching file multiple times in quick succession results in redundant fetches
 //  * connection failures hang
@@ -10,7 +9,7 @@ var CACHE = {}
 //  * not peer-to-peer (should use js-ipfs)
 //  * not persisted to indexed db
 //
-module.exports = function connect (contentId, cb) {
+module.exports = function connect (prefix, cb) {
   function getFile (path, cb) {
     if (path in CACHE) {
       setTimeout(function () {
@@ -30,7 +29,4 @@ module.exports = function connect (contentId, cb) {
     }
   }
 
-  setTimeout(function () {
-    cb(null, getFile)
-  }, 0)
 }

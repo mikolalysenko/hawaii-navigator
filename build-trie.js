@@ -21,6 +21,7 @@ function insertPlace (place) {
   }
 
   node[suffix] = {
+    p: index.place2Coord[place],
     li: renameLabels(index.labels.inV[vert], index.labels.inW[vert]),
     lo: renameLabels(index.labels.outV[vert], index.labels.outW[vert]),
     ai: renameLabels(adjacency.inV[vert], adjacency.inW[vert]),
