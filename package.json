@@ -1,16 +1,14 @@
 {
   "name": "hawaii-navigator",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Data structure for path planning and navigation across the Hawaiian archipelago",
+  "main": "client.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "budo example/demo.js -d . --open"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ipfs": "^0.21.8",
-    "js-ipfs": "0.0.301",
     "mkdirp": "^0.5.1",
     "ndarray": "^1.0.18",
     "ndarray-sort": "^1.0.1",
