@@ -204,7 +204,6 @@ module.exports = function (getFile) {
     function refineRoute (start, end) {
       pending += 1
       getPlaceList([start, end], function (err, result) {
-        console.log('find route: ', start, end, result)
         if (done) {
           return
         }
@@ -226,7 +225,7 @@ module.exports = function (getFile) {
               new Vertex(end, result[1])
             ])
           } else {
-            scanAdjacent(start, result[0].ao, end, { v: [end], w: [0] })
+            chaseHub(end, result[1], start, result[0], true)
           }
         } else if (hub.vertex === end) {
           if (containsVert(result[1].ai.v, start)) {
@@ -235,7 +234,7 @@ module.exports = function (getFile) {
               new Vertex(end, result[1])
             ])
           } else {
-            scanAdjacent(start, { v: [start], w: [0] }, end, result[1].ai)
+            chaseHub(start, result[0], end, result[1], false)
           }
         } else {
           refineRoute(start, hub.vertex)
@@ -250,64 +249,70 @@ module.exports = function (getFile) {
       })
     }
 
-    function scanAdjacent (start, outAdj, end, inAdj) {
-      pending += 1
+    function chaseHub (start, splace, end, eplace, flip) {
+      var stack = []
+      next(start, splace)
 
-      var adj = []
-      var acc = 0
-      for (var i = 0; i < outAdj.v.length; ++i) {
-        acc += outAdj.v[i]
-        adj.push(acc)
-      }
-      acc = 0
-      for (var j = 0; j < inAdj.v.length; ++j) {
-        acc += inAdj.v[j]
-        adj.push(acc)
-      }
-
-      getPlaceList(adj, function (err, data) {
-        if (done) {
-          return
+      function next (place, data) {
+        var i
+        stack.push(new Vertex(place, data))
+        if (place === end) {
+          if (flip) {
+            for (i = 1; i < stack.length; ++i) {
+              edges.push([stack[i], stack[i - 1]])
+            }
+          } else {
+            for (i = 1; i < stack.length; ++i) {
+              edges.push([stack[i - 1], stack[i]])
+            }
+          }
+          if (pending === 0) {
+            cb(null, extractPath(start, edges, cb))
+          }
+        } else {
+          var X = flip ? data.ai : data.ao
+          var V = X.v
+          var W = X.w
+          var adj = []
+          var acc = 0
+          for (i = 0; i < V.length; ++i) {
+            acc += V[i]
+            adj.push(acc)
+          }
+          search(adj, W)
         }
-        if (err) {
-          done = true
-          return cb(err)
-        }
+      }
 
-        var sdata = data.slice(0, outAdj.v.length)
-        var tdata = data.slice(outAdj.v.length)
-
-        var bestV = -1
-        var bestD = Infinity
-
-        for (var i = 0; i < sdata.length; ++i) {
-          var sv = sdata[i]
-          var sw = outAdj.w[i]
-          for (var j = 0; j < tdata.length; ++j) {
-            var tv = tdata[j]
-            var tw = inAdj.w[j]
-
-            var link = merge(sv.lo, tv.li)
-            if (link) {
-              var d = sw + tw + link.distance
-              if (d < bestD) {
-                bestV = link.vertex
+      function search (v, w) {
+        pending += 1
+        getPlaceList(v, function (err, places) {
+          if (done) {
+            return
+          }
+          if (err) {
+            done = true
+            return cb(err)
+          }
+          pending -= 1
+          var bestN = -1
+          var bestD = Infinity
+          for (var i = 0; i < places.length; ++i) {
+            var X = flip ? places[i].li : places[i].lo
+            var V = X.v
+            var W = X.w
+            var acc = 0
+            for (var j = 0; j < V.length; ++j) {
+              acc += V[j]
+              var d = w[i] + W[j]
+              if (acc === end && d < bestD) {
+                bestN = i
                 bestD = d
               }
             }
           }
-        }
-
-        if (bestV < 0 || bestV === start || bestV === end) {
-          // should never happend if index is valid
-          done = true
-          return cb('index invalid, error linking vertex')
-        }
-
-        pending -= 1
-        refineRoute(start, bestV)
-        refineRoute(bestV, end)
-      })
+          next(v[bestN], places[bestN])
+        })
+      }
     }
   }
 
